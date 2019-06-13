@@ -12,7 +12,6 @@ small_dict = {
 
 
 # Return all possible gates from a given list of size N
-# TODO Make this work with two qubit gates
 def get_gates(N, list_size):
     list = {}
     if(N == 1):
