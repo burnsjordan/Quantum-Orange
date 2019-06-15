@@ -45,6 +45,8 @@ def get_gates(N, list_size):
                     else:
                         temp_matrix = np.kron(temp_matrix, identity)
                     k += 1
+                if(j!=1 and i=='Identity'):
+                    double = True
                 if(not double):
                     list[count] = temp_matrix
                     count += 1
