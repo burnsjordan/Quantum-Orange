@@ -1,5 +1,7 @@
 import numpy as np
 
+Identity = np.array([[1, 0], [0, 1]])
+
 # Small set of quantum gates
 small_dict = {
     'Identity': np.array([[1, 0], [0, 1]]),
@@ -30,8 +32,8 @@ def get_gates(N, list_size):
                     if(i == 'CNOT' or i == 'TONC'):
                         marker = 1
                 else:
-                    temp_matrix = small_dict['Identity']
-                identity = small_dict['Identity']
+                    temp_matrix = Identity
+                identity = Identity
                 k = 2 + marker
                 double = False
                 while(k < N+1):
