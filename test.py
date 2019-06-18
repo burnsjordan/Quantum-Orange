@@ -4,6 +4,13 @@ import learning_functions
 import train_functions
 from scipy.stats import unitary_group
 
+
+class Colors():
+    HEADING = '\033[38;5;63m'
+    PASSED = '\033[38;5;47m'
+    FAILED= '\033[38;5;160m'
+    ENDC = '\033[0m'
+
 # Setup test matrices
 # Test using an identity matrix
 i_test = np.identity(4)
@@ -30,13 +37,13 @@ def test_algo(target_matrix, current_matrix, trained_ai, learning_function, temp
             high_error = False
         count += 1
     if(high_error):
-        print(temp_str + 'Failed')
+        print(temp_str + Colors.FAILED + 'Failed' + Colors.ENDC)
     else:
-        print(temp_str + 'Passed')
+        print(temp_str + Colors.PASSED + 'Passed' + Colors.ENDC)
 
 # Test Random Algorithm
 print('')
-print('Testing Random Algorithm:')
+print(Colors.HEADING + 'Random Algorithm:' + Colors.ENDC)
 test_algo(i_test, i_test, 0, learning_functions.random_algo, 'i_test: ')
 test_algo(one_gate_test, i_test, 0, learning_functions.random_algo, 'one_gate_test: ')
 test_algo(five_gate_test, i_test, 0, learning_functions.random_algo, 'five_gate_test: ')
@@ -45,7 +52,7 @@ test_algo(unitary_test, i_test, 0, learning_functions.random_algo, 'unitary_test
 
 # Test Greedy Algorithm
 print('')
-print('Testing Greedy Algorithm')
+print(Colors.HEADING + 'Greedy Algorithm' + Colors.ENDC)
 test_algo(i_test, i_test, 0, learning_functions.greedy_algo, 'i_test: ')
 test_algo(one_gate_test, i_test, 0, learning_functions.greedy_algo, 'one_gate_test: ')
 test_algo(five_gate_test, i_test, 0, learning_functions.greedy_algo, 'five_gate_test: ')
@@ -54,7 +61,7 @@ test_algo(unitary_test, i_test, 0, learning_functions.greedy_algo, 'unitary_test
 
 # Test Deep Greedy Algorithm
 print('')
-print('Testing Deep Greedy Algorithm')
+print(Colors.HEADING + 'Deep Greedy Algorithm' + Colors.ENDC)
 test_algo(i_test, i_test, 0, learning_functions.deep_greedy_algo, 'i_test: ')
 test_algo(one_gate_test, i_test, 0, learning_functions.deep_greedy_algo, 'one_gate_test: ')
 test_algo(five_gate_test, i_test, 0, learning_functions.deep_greedy_algo, 'five_gate_test: ')
@@ -63,7 +70,7 @@ test_algo(unitary_test, i_test, 0, learning_functions.deep_greedy_algo, 'unitary
 
 # Test Monte Carlo Algorithm
 print('')
-print('Testing Monte Carlo Algorithm')
+print(Colors.HEADING + 'Monte Carlo Algorithm' + Colors.ENDC)
 test_algo(i_test, i_test, train_functions.no_train_monte_carlo(i_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'i_test: ')
 test_algo(one_gate_test, i_test, train_functions.no_train_monte_carlo(one_gate_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'one_gate_test: ')
 test_algo(five_gate_test, i_test, train_functions.no_train_monte_carlo(five_gate_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'five_gate_test: ')
