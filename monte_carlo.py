@@ -28,7 +28,7 @@ def untuple_array(arr):
 class Circuit():
     def __init__(self, **kwargs):
         self.N = kwargs.get('N', 4)
-        self.error_threshold = kwargs.get('error', 2)
+        self.error_threshold = kwargs.get('error', 0.1)
         self.target = tuple_array(kwargs.get('target', np.array([[0, 1], [1, 0]])))
         temp = kwargs.get('list', gates.get_gates(self.N, 'small'))
         self.gates_list = []
@@ -60,6 +60,7 @@ class MonteCarlo():
         self.circuit = circuit
         self.states = []
         seconds = kwargs.get('time', 5)
+        self.verbose = kwargs.get('verbose', False)
         self.calculation_time = datetime.timedelta(seconds=seconds)
         self.max_moves = kwargs.get('max_moves', 100)
         self.wins = {}
@@ -89,12 +90,21 @@ class MonteCarlo():
 
         moves_states = [(p, self.circuit.next_state(state, p)) for p in legal]
 
+        if(self.verbose):
+            print(games, datetime.datetime.utcnow() - begin)
+
         percent_wins, move = max(
             (self.wins.get((player, S), 0) /
              self.plays.get((player, S), 1),
              p)
             for p, S in moves_states
         )
+
+        if(self.verbose):
+            for x in sorted(((100 * self.wins.get((player, S), 0) / self.plays.get((player, S), 1), self.wins.get((player, S), 0), self.plays.get((player, S), 0), p) for p, S in moves_states), reverse=True):
+                print("{3}: {0:.2f}% ({1} / {2})".format(*x))
+
+            print('Maximum depth searched:', self.max_depth)
 
         return move
 
