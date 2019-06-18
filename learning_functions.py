@@ -15,7 +15,7 @@ def greedy_algo(target_matrix, current_matrix, gates_list, trained_ai):
 
 # Greedy algorithm that searches up to a maximum depth
 def deep_greedy_algo(target_matrix, current_matrix, gates_list, trained_ai):
-    depth = 5
+    max_depth = 5
     trees = []
     for x in gates_list:
         trees.append(monte_carlo.Tree(matrix=np.dot(gates_list[x], current_matrix), gate=gates_list[x]).root)
@@ -23,7 +23,7 @@ def deep_greedy_algo(target_matrix, current_matrix, gates_list, trained_ai):
     current_depth = 1
     current_best = monte_carlo.Node(matrix=current_matrix, gate=current_matrix)
     error = 0.1
-    while(current_depth < depth):
+    while(current_depth < max_depth):
         next_level = []
         for x in current_level:
             if(np.linalg.norm(target_matrix-x.matrix) < error):
@@ -36,7 +36,7 @@ def deep_greedy_algo(target_matrix, current_matrix, gates_list, trained_ai):
             for y in x.children:
                 next_level.append(y)
         current_level = next_level
-        depth += 1
+        current_depth += 1
     return current_best.gate
             
 
