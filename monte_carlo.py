@@ -25,6 +25,24 @@ def untuple_array(arr):
     return np.array(temp)
 
 
+class Node():
+    def __init__(self, **kwargs):
+        self.depth = kwargs.get('depth', 0)
+        self.parent = kwargs.get('parent', 0)
+        self.children = []
+        self.matrix = kwargs.get('matrix', gates.Identity)
+        self.gate = kwargs.get('gate', gates.Identity)
+        self.root = kwargs.get('root', self)
+
+    def add_child(self, matrix, gate):
+        self.children.append(Node(depth=self.depth+1, parent=self, matrix=matrix, gate=gate, root=self.root))
+
+
+class Tree():
+    def __init__(self, **kwargs):
+        self.root = Node(matrix=kwargs.get('matrix'), gate=kwargs.get('gate'))
+
+
 class Circuit():
     def __init__(self, **kwargs):
         self.N = kwargs.get('N', 4)
