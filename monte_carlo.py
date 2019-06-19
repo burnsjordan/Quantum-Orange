@@ -35,7 +35,8 @@ class Node():
         self.root = kwargs.get('root', self)
 
     def add_child(self, matrix, gate):
-        self.children.append(Node(depth=self.depth+1, parent=self, matrix=matrix, gate=gate, root=self.root))
+        self.children.append(
+            Node(depth=self.depth+1, parent=self, matrix=matrix, gate=gate, root=self.root))
 
 
 class Tree():
@@ -47,12 +48,12 @@ class Circuit():
     def __init__(self, **kwargs):
         self.N = kwargs.get('N', 4)
         self.error_threshold = kwargs.get('error', 0.1)
-        self.target = tuple_array(kwargs.get('target', np.array([[0, 1], [1, 0]])))
+        self.target = tuple_array(kwargs.get(
+            'target', np.array([[0, 1], [1, 0]])))
         temp = kwargs.get('list', gates.get_gates(self.N, 'small'))
         self.gates_list = []
         for x in temp:
             self.gates_list.append(tuple_array(temp[x]))
-        
 
     def start(self):
         return tuple_array(np.identity(2**self.N))
