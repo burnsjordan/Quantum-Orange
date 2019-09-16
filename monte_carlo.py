@@ -25,6 +25,16 @@ def untuple_array(arr):
     return np.array(temp)
 
 
+def backpropogate(node, result):
+    if(result == "win"):
+        node.times_visited += 1
+        node.times_won += 1
+    else:
+        node.times_visited +=1
+    if(node.parent != 0):
+        backpropogate(node.parent, result)
+
+
 class Node():
     def __init__(self, **kwargs):
         self.depth = kwargs.get('depth', 0)
@@ -42,6 +52,118 @@ class Node():
 class Tree():
     def __init__(self, **kwargs):
         self.root = Node(matrix=kwargs.get('matrix'), gate=kwargs.get('gate'))
+
+
+class Monte_Carlo_Node(Node):
+    def __init__(self, **kwargs):
+        Node.__init__(self, **kwargs)
+        self.times_visited = 0
+        self.times_won = 0
+
+
+    def add_child(self, matrix, gate):
+        self.children.append(
+            Monte_Carlo_Node(depth=self.depth+1, parent=self, matrix=matrix, gate=gate, root=self.root))
+
+    
+    def check_children(self):
+        temp = True
+        if(not self.children):
+            temp = False
+        for x in self.children:
+            if(x.times_visited == 0):
+                temp = False
+        return temp
+
+
+    def get_best_child(self, C):
+        current_best_ratio = -1
+        current_best_child = 0
+        total_plays = 0
+        for x in self.children:
+            total_plays += x.times_visited
+        for x in self.children:
+            if(x.times_won/x.times_visited > current_best_ratio):
+                current_best_ratio = x.times_won/x.times_visited
+                current_best_child = x
+        return current_best_child
+
+
+class Monte_Carlo_Tree():
+    def __init__(self, **kwargs):
+        self.N = kwargs.get('N', 4)
+        self.error_threshold = kwargs.get('error', 0.01)
+        self.target = tuple_array(kwargs.get(
+            'target', np.array([[0, 1], [1, 0]])))
+        temp = kwargs.get('list', gates.get_gates(self.N, 'small'))
+        self.gates_list = []
+        for x in temp:
+            self.gates_list.append(tuple_array(temp[x]))
+        self.root = Monte_Carlo_Node(matrix=kwargs.get('matrix'), gate=kwargs.get('gate'))
+        self.visited_states = []
+        self.visited_states.append(self.root)
+        self.max_depth = kwargs.get('max_depth', 100)
+        self.C = kwargs.get('C', 1.4)
+
+
+    def get_equivalent_node(self, matrix):
+        for x in self.visited_states:
+            if(tuple_array(matrix) == tuple_array(x.matrix)):
+                return x
+        raise ValueError
+        
+
+    def get_random_node(self, node_list):
+        return choice(node_list)
+
+
+    def add_children(self, node):
+        if(node.children):
+            return
+        for x in self.gates_list:
+            node.add_child(untuple_array(x), x)
+
+
+    def update(self, matrix):
+        self.visited_states.append(self.get_equivalent_node(matrix))
+
+
+    # TODO Fix C in get_best_child
+    def play_round(self, starting_node):
+        self.add_children(starting_node)
+        visited_children = []
+        unvisited_children = []
+        for x in starting_node.children:
+            if(x.times_visited < 1):
+                unvisited_children.append(x)
+            else:
+                visited_children.append(x)
+        if(not unvisited_children):
+            current_node = starting_node.get_best_child(1.4)
+        else:
+            current_node = self.get_random_node(unvisited_children)
+        self.add_children(current_node)
+        temp = np.linalg.norm(untuple_array(self.target)-current_node.matrix)
+        if(np.linalg.norm(untuple_array(self.target)-current_node.matrix) < self.error_threshold):
+            backpropogate(current_node, "win")
+        elif(current_node.depth == self.max_depth):
+            backpropogate(current_node, "loss")
+        else:
+            self.play_round(current_node)
+
+
+    def get_best_move(self, matrix):
+        try:
+            starting_node = self.get_equivalent_node(matrix)
+        except:
+            print('Invalid Matrix Given')
+            return
+        if(not starting_node.check_children()):
+            count = 0
+            while(count < 100):
+                self.play_round(starting_node)
+                count += 1
+        return starting_node.get_best_child(self.C)
 
 
 class Circuit():

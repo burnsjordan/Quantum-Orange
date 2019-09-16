@@ -49,5 +49,8 @@ def random_algo(target_matrix, current_matrix, gates_list, trained_ai):
 
 # Standard Monte-Carlo Tree Search Algorithm
 def monte_carlo_algo(target_matrix, current_matrix, gates_list, trained_ai):
+    print('learning algo')
     trained_ai.update(current_matrix)
-    return monte_carlo.untuple_array(trained_ai.get_play())
+    print('learning algo best move')
+    temp = trained_ai.get_best_move(current_matrix)
+    return temp.matrix
