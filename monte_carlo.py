@@ -4,6 +4,7 @@ import datetime
 from math import log, sqrt
 from random import choice
 
+floating_point_error_tolerance = 0.001
 
 def tuple_array(arr):
     temp = []
@@ -108,7 +109,7 @@ class Monte_Carlo_Tree():
 
     def get_equivalent_node(self, matrix):
         for x in self.visited_states:
-            if(tuple_array(matrix) == tuple_array(x.matrix)):
+            if(np.linalg.norm(matrix-x.matrix) < floating_point_error_tolerance):
                 return x
         raise ValueError
         
@@ -124,8 +125,8 @@ class Monte_Carlo_Tree():
             node.add_child(untuple_array(x), x)
 
 
-    def update(self, matrix):
-        self.visited_states.append(self.get_equivalent_node(matrix))
+    def update(self, node):
+        self.visited_states.append(node)
 
 
     # TODO Fix C in get_best_child
@@ -143,7 +144,6 @@ class Monte_Carlo_Tree():
         else:
             current_node = self.get_random_node(unvisited_children)
         self.add_children(current_node)
-        temp = np.linalg.norm(untuple_array(self.target)-current_node.matrix)
         if(np.linalg.norm(untuple_array(self.target)-current_node.matrix) < self.error_threshold):
             backpropogate(current_node, "win")
         elif(current_node.depth == self.max_depth):
@@ -157,6 +157,8 @@ class Monte_Carlo_Tree():
             starting_node = self.get_equivalent_node(matrix)
         except:
             print('Invalid Matrix Given')
+            print(matrix)
+            print(self.visited_states)
             return
         if(not starting_node.check_children()):
             count = 0

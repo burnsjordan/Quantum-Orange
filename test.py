@@ -40,7 +40,6 @@ def test_algo(target_matrix, current_matrix, trained_ai, learning_function, temp
             print(count)
         current_matrix = np.dot(learning_function(
             target_matrix, current_matrix, gates_list, trained_ai), current_matrix)
-        temp = np.linalg.norm(target_matrix-current_matrix)
         if(np.linalg.norm(target_matrix-current_matrix) < error_threshold):
             high_error = False
         count += 1
@@ -90,8 +89,8 @@ print(Colors.HEADING + 'Deep Greedy Algorithm' + Colors.ENDC)
 print('')
 print(Colors.HEADING + 'Monte Carlo Algorithm' + Colors.ENDC)
 print('Test Algo')
-#test_algo(i_test, i_test, train_functions.no_train_monte_carlo(
-#    i_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'i_test: ', verbose=True)
+test_algo(i_test, i_test, train_functions.no_train_monte_carlo(
+    i_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'i_test: ', verbose=True)
 test_algo(one_gate_test, i_test, train_functions.no_train_monte_carlo(
     one_gate_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'one_gate_test: ')
 test_algo(five_gate_test, i_test, train_functions.no_train_monte_carlo(
