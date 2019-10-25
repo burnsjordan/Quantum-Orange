@@ -84,7 +84,7 @@ class Monte_Carlo_Node(Node):
         for x in self.children:
             total_plays += x.times_visited
         for x in self.children:
-            if(x.times_won/x.times_visited > current_best_ratio):
+            if(x.times_won/x.times_visited+C*sqrt(log(total_plays)/x.times_visited) > current_best_ratio):
                 current_best_ratio = x.times_won/x.times_visited
                 current_best_child = x
         return current_best_child
@@ -165,6 +165,8 @@ class Monte_Carlo_Tree():
             while(count < 100):
                 self.play_round(starting_node)
                 count += 1
+        print("Return")
+        temp = starting_node.get_best_child(self.C)
         return starting_node.get_best_child(self.C)
 
 
