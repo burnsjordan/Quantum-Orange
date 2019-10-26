@@ -80,6 +80,7 @@ class Monte_Carlo_Node(Node):
     def get_best_child(self):
         current_best_ratio = -1
         current_best_child = 0
+        current_most_times_won = 0
         total_plays = 0
         for x in self.children:
             total_plays += x.times_visited
@@ -88,6 +89,12 @@ class Monte_Carlo_Node(Node):
             if(ratio > current_best_ratio):
                 current_best_ratio = x.times_won/x.times_visited
                 current_best_child = x
+                current_most_times_won = x.times_won
+            elif (ratio == current_best_ratio):
+                if (x.times_won > current_most_times_won):
+                    current_best_ratio = x.times_won/x.times_visited
+                    current_best_child = x
+                    current_most_times_won = x.times_won 
         return current_best_child
 
     def get_best_monte_carlo_candidate(self, C):
@@ -99,7 +106,7 @@ class Monte_Carlo_Node(Node):
         for x in self.children:
             ratio = (x.times_won/x.times_visited)+(C*sqrt(log(total_plays)/x.times_visited))
             if(ratio > current_best_ratio):
-                current_best_ratio = x.times_won/x.times_visited
+                current_best_ratio = ratio
                 current_best_child = x
         return current_best_child
 
@@ -117,7 +124,7 @@ class Monte_Carlo_Tree():
         self.root = Monte_Carlo_Node(matrix=kwargs.get('matrix'), gate=kwargs.get('gate'))
         self.visited_states = []
         self.visited_states.append(self.root)
-        self.max_depth = kwargs.get('max_depth', 5)
+        self.max_depth = kwargs.get('max_depth', 10)
         self.C = kwargs.get('C', 1.4)
 
 
@@ -167,6 +174,8 @@ class Monte_Carlo_Tree():
         else:
             current_node = self.get_random_node(unvisited_children)
         self.add_children(current_node)
+        if(current_node.times_visited == 0 and False):
+            self.visited_states.append(current_node)
         if(np.linalg.norm(untuple_array(self.target)-current_node.matrix) < self.error_threshold):
             backpropogate(current_node, "win")
         elif(current_node.depth == self.max_depth):
@@ -176,6 +185,7 @@ class Monte_Carlo_Tree():
 
 
     def get_best_move(self, matrix):
+        #print(matrix)
         try:
             starting_node = self.get_equivalent_node(matrix)
         except:
@@ -185,140 +195,8 @@ class Monte_Carlo_Tree():
             return
         if(not starting_node.check_children()):
             count = 0
-            while(count < 100):
+            while(count < 1000):
                 self.play_round(starting_node)
                 count += 1
+        temp = starting_node.get_best_child().times_won
         return starting_node.get_best_child()
-
-
-class Circuit():
-    def __init__(self, **kwargs):
-        self.N = kwargs.get('N', 4)
-        self.error_threshold = kwargs.get('error', 0.1)
-        self.target = tuple_array(kwargs.get(
-            'target', np.array([[0, 1], [1, 0]])))
-        temp = kwargs.get('list', gates.get_gates(self.N, 'small'))
-        self.gates_list = []
-        for x in temp:
-            self.gates_list.append(tuple_array(temp[x]))
-
-    def start(self):
-        return tuple_array(np.identity(2**self.N))
-
-    def current_player(self, state):
-        return 1
-
-    def next_state(self, state, play):
-        return tuple_array(np.dot(untuple_array(play), untuple_array(state)))
-
-    def legal_plays(self, state_history):
-        return self.gates_list
-
-    def winner(self, state_history):
-        if(np.linalg.norm(untuple_array(self.target)-untuple_array(state_history[-1])) < self.error_threshold):
-            return 1
-        else:
-            return 2
-
-
-class MonteCarlo():
-    def __init__(self, circuit, **kwargs):
-        self.circuit = circuit
-        self.states = []
-        seconds = kwargs.get('time', 5)
-        self.verbose = kwargs.get('verbose', False)
-        self.calculation_time = datetime.timedelta(seconds=seconds)
-        self.max_moves = kwargs.get('max_moves', 100)
-        self.wins = {}
-        self.plays = {}
-        self.C = kwargs.get('C', 1.4)
-        self.max_depth = 0
-
-    def update(self, state):
-        self.states.append(tuple_array(state))
-
-    def get_play(self):
-        self.max_depth = 0
-        state = self.states[-1]
-        player = self.circuit.current_player(state)
-        legal = self.circuit.legal_plays(self.states[:])
-
-        if(not legal):
-            return
-        if(len(legal) == 1):
-            return legal[0]
-
-        games = 0
-        begin = datetime.datetime.utcnow()
-        while(datetime.datetime.utcnow()-begin < self.calculation_time):
-            self.run_simulation()
-            games += 1
-
-        moves_states = [(p, self.circuit.next_state(state, p)) for p in legal]
-
-        if(self.verbose):
-            print(games, datetime.datetime.utcnow() - begin)
-
-        percent_wins, move = max(
-            (self.wins.get((player, S), 0) /
-             self.plays.get((player, S), 1),
-             p)
-            for p, S in moves_states
-        )
-
-        if(self.verbose):
-            for x in sorted(((100 * self.wins.get((player, S), 0) / self.plays.get((player, S), 1), self.wins.get((player, S), 0), self.plays.get((player, S), 0), p) for p, S in moves_states), reverse=True):
-                print("{3}: {0:.2f}% ({1} / {2})".format(*x))
-
-            print('Maximum depth searched:', self.max_depth)
-
-        return move
-
-    def run_simulation(self):
-        plays, wins = self.plays, self.wins
-
-        visited_states = set()
-        states_copy = self.states[:]
-        state = states_copy[-1]
-        player = self.circuit.current_player(states_copy)
-
-        expand = True
-        for t in range(1, self.max_moves + 1):
-            legal = self.circuit.legal_plays(states_copy)
-            moves_states = [(p, self.circuit.next_state(state, p))
-                            for p in legal]
-
-            if(all(plays.get((player, S)) for p, S in moves_states)):
-                log_total = log(
-                    sum(plays[(player, S)] for p, S in moves_states)
-                )
-                value, move, state = max(
-                    ((wins[(player, S)] / plays[(player, S)] +
-                      self.C * sqrt(log_total / plays[(player, S)]), p, S)
-                     for p, S in moves_states)
-                )
-            else:
-                move, state = choice(moves_states)
-
-            states_copy.append(state)
-
-            if(expand and (player, state) not in self.plays):
-                expand = False
-                self.plays[(player, state)] = 0
-                self.wins[(player, state)] = 0
-
-            visited_states.add((player, state))
-
-            player = self.circuit.current_player(state)
-            winner = self.circuit.winner(states_copy)
-            if(len(states_copy) > self.max_depth):
-                self.max_depth = len(states_copy)
-            if(winner):
-                break
-
-        for player, state in visited_states:
-            if((player, state) not in self.plays):
-                continue
-            self.plays[(player, state)] += 1
-            if(player == winner):
-                self.wins[(player, state)] += 1
