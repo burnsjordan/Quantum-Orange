@@ -4,7 +4,7 @@ import datetime
 from math import log, sqrt
 from random import choice
 
-floating_point_error_tolerance = 0.001
+floating_point_error_tolerance = 0.00001
 
 def tuple_array(arr):
     temp = []
@@ -77,14 +77,28 @@ class Monte_Carlo_Node(Node):
         return temp
 
 
-    def get_best_child(self, C):
+    def get_best_child(self):
         current_best_ratio = -1
         current_best_child = 0
         total_plays = 0
         for x in self.children:
             total_plays += x.times_visited
         for x in self.children:
-            if(x.times_won/x.times_visited+C*sqrt(log(total_plays)/x.times_visited) > current_best_ratio):
+            ratio = (x.times_won/x.times_visited)
+            if(ratio > current_best_ratio):
+                current_best_ratio = x.times_won/x.times_visited
+                current_best_child = x
+        return current_best_child
+
+    def get_best_monte_carlo_candidate(self, C):
+        current_best_ratio = -1
+        current_best_child = 0
+        total_plays = 0
+        for x in self.children:
+            total_plays += x.times_visited
+        for x in self.children:
+            ratio = (x.times_won/x.times_visited)+(C*sqrt(log(total_plays)/x.times_visited))
+            if(ratio > current_best_ratio):
                 current_best_ratio = x.times_won/x.times_visited
                 current_best_child = x
         return current_best_child
@@ -93,7 +107,7 @@ class Monte_Carlo_Node(Node):
 class Monte_Carlo_Tree():
     def __init__(self, **kwargs):
         self.N = kwargs.get('N', 4)
-        self.error_threshold = kwargs.get('error', 0.01)
+        self.error_threshold = kwargs.get('error', 0.00001)
         self.target = tuple_array(kwargs.get(
             'target', np.array([[0, 1], [1, 0]])))
         temp = kwargs.get('list', gates.get_gates(self.N, 'small'))
@@ -103,7 +117,7 @@ class Monte_Carlo_Tree():
         self.root = Monte_Carlo_Node(matrix=kwargs.get('matrix'), gate=kwargs.get('gate'))
         self.visited_states = []
         self.visited_states.append(self.root)
-        self.max_depth = kwargs.get('max_depth', 100)
+        self.max_depth = kwargs.get('max_depth', 5)
         self.C = kwargs.get('C', 1.4)
 
 
@@ -121,8 +135,16 @@ class Monte_Carlo_Tree():
     def add_children(self, node):
         if(node.children):
             return
+        identity = np.identity(2**self.N)
         for x in self.gates_list:
-            node.add_child(untuple_array(x), x)
+            add = True
+            if(node.parent):
+                if(tuple_array(np.matmul(node.matrix,untuple_array(x))) == tuple_array(node.parent.matrix)):
+                    add = False
+            if(tuple_array(np.matmul(node.matrix,untuple_array(x))) == tuple_array(identity)):
+                add = False
+            if(add):
+                node.add_child(np.matmul(node.matrix,untuple_array(x)), x)
 
 
     def update(self, node):
@@ -134,13 +156,14 @@ class Monte_Carlo_Tree():
         self.add_children(starting_node)
         visited_children = []
         unvisited_children = []
+
         for x in starting_node.children:
             if(x.times_visited < 1):
                 unvisited_children.append(x)
             else:
                 visited_children.append(x)
         if(not unvisited_children):
-            current_node = starting_node.get_best_child(1.4)
+            current_node = starting_node.get_best_monte_carlo_candidate(1.4)
         else:
             current_node = self.get_random_node(unvisited_children)
         self.add_children(current_node)
@@ -165,9 +188,7 @@ class Monte_Carlo_Tree():
             while(count < 100):
                 self.play_round(starting_node)
                 count += 1
-        print("Return")
-        temp = starting_node.get_best_child(self.C)
-        return starting_node.get_best_child(self.C)
+        return starting_node.get_best_child()
 
 
 class Circuit():
