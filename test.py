@@ -4,9 +4,6 @@ import learning_functions
 import train_functions
 from scipy.stats import unitary_group
 
-fail_count = 0
-failures = []
-successes = []
 
 class Colors():
     HEADING = '\033[38;5;63m'
@@ -39,84 +36,65 @@ def test_algo(target_matrix, current_matrix, trained_ai, learning_function, temp
     high_error = True
     count = 0
     rolling_matrix = current_matrix
-    global fail_count
-    global failures
-    global successes
     while(high_error and count < max_depth):
         if(verbose):
             print(count)
-        rolling_matrix = learning_function(target_matrix, rolling_matrix, gates_list, trained_ai)
-        # rolling_matrix = np.matmul(learning_function(
-        #     target_matrix, rolling_matrix, gates_list, trained_ai), rolling_matrix)
+        #rolling_matrix = learning_function(target_matrix, rolling_matrix, gates_list, trained_ai)
+        rolling_matrix = np.matmul(learning_function(
+            target_matrix, rolling_matrix, gates_list, trained_ai), rolling_matrix)
         if(np.linalg.norm(target_matrix-rolling_matrix) < error_threshold):
             high_error = False
         count += 1
     if(high_error):
         print(temp_str + Colors.FAILED + 'Failed' + Colors.ENDC)
-        fail_count += 1
-        failures.append(target_matrix)
     else:
         print(temp_str + Colors.PASSED + 'Passed' + Colors.ENDC)
-        successes.append(target_matrix)
 
 
-# # Test Random Algorithm
-# print('')
-# print(Colors.HEADING + 'Random Algorithm:' + Colors.ENDC)
-# test_algo(i_test, i_test, 0, learning_functions.random_algo, 'i_test: ')
-# test_algo(one_gate_test, i_test, 0,
-#           learning_functions.random_algo, 'one_gate_test: ')
-# test_algo(five_gate_test, i_test, 0,
-#           learning_functions.random_algo, 'five_gate_test: ')
-# test_algo(unitary_test, i_test, 0,
-#           learning_functions.random_algo, 'unitary_test: ')
+# Test Random Algorithm
+print('')
+print(Colors.HEADING + 'Random Algorithm:' + Colors.ENDC)
+test_algo(i_test, i_test, 0, learning_functions.random_algo, 'i_test: ')
+test_algo(one_gate_test, i_test, 0,
+          learning_functions.random_algo, 'one_gate_test: ')
+test_algo(five_gate_test, i_test, 0,
+          learning_functions.random_algo, 'five_gate_test: ')
+test_algo(unitary_test, i_test, 0,
+          learning_functions.random_algo, 'unitary_test: ')
 
 
-# # Test Greedy Algorithm
-# print('')
-# print(Colors.HEADING + 'Greedy Algorithm' + Colors.ENDC)
-# test_algo(i_test, i_test, 0, learning_functions.greedy_algo, 'i_test: ')
-# test_algo(one_gate_test, i_test, 0,
-#           learning_functions.greedy_algo, 'one_gate_test: ')
-# test_algo(five_gate_test, i_test, 0,
-#           learning_functions.greedy_algo, 'five_gate_test: ')
-# test_algo(unitary_test, i_test, 0,
-#           learning_functions.greedy_algo, 'unitary_test: ')
+# Test Greedy Algorithm
+print('')
+print(Colors.HEADING + 'Greedy Algorithm' + Colors.ENDC)
+test_algo(i_test, i_test, 0, learning_functions.greedy_algo, 'i_test: ')
+test_algo(one_gate_test, i_test, 0,
+          learning_functions.greedy_algo, 'one_gate_test: ')
+test_algo(five_gate_test, i_test, 0,
+          learning_functions.greedy_algo, 'five_gate_test: ')
+test_algo(unitary_test, i_test, 0,
+          learning_functions.greedy_algo, 'unitary_test: ')
 
 
-# # Test Deep Greedy Algorithm
-# print('')
-# print(Colors.HEADING + 'Deep Greedy Algorithm' + Colors.ENDC)
-# #test_algo(i_test, i_test, 0, learning_functions.deep_greedy_algo, 'i_test: ')
-# #test_algo(one_gate_test, i_test, 0,
-# #          learning_functions.deep_greedy_algo, 'one_gate_test: ')
-# #test_algo(five_gate_test, i_test, 0,
-# #          learning_functions.deep_greedy_algo, 'five_gate_test: ')
-# #test_algo(unitary_test, i_test, 0,
-# #          learning_functions.deep_greedy_algo, 'unitary_test: ')
+# Test Deep Greedy Algorithm
+print('')
+print(Colors.HEADING + 'Deep Greedy Algorithm' + Colors.ENDC)
+test_algo(i_test, i_test, 0, learning_functions.deep_greedy_algo, 'i_test: ')
+test_algo(one_gate_test, i_test, 0,
+          learning_functions.deep_greedy_algo, 'one_gate_test: ')
+test_algo(five_gate_test, i_test, 0,
+          learning_functions.deep_greedy_algo, 'five_gate_test: ')
+test_algo(unitary_test, i_test, 0,
+        learning_functions.deep_greedy_algo, 'unitary_test: ')
 
 
 # Test Monte Carlo Algorithm
-# print('')
-# print(Colors.HEADING + 'Monte Carlo Algorithm' + Colors.ENDC)
-for i in range(10):
-    # Setup test matrices
-    # Test using an identity matrix
-    i_test = np.identity(4)
-    current_matrix = np.identity(np.size(i_test, 0))
-    # Test using one gate from the gates list
-    one_gate_test = np.matmul(learning_functions.random_algo(
-    i_test, 0, gates_list, 0), i_test)
-    five_gate_test = i_test
-    for j in range(4):
-        five_gate_test = np.matmul(learning_functions.random_algo(
-            five_gate_test, 0, gates_list, 0), five_gate_test)
-    #test_algo(one_gate_test, i_test, train_functions.no_train_monte_carlo(
-    #one_gate_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'one_gate_test: ')
-    test_algo(five_gate_test, i_test, train_functions.no_train_monte_carlo(
+print('')
+print(Colors.HEADING + 'Monte Carlo Algorithm' + Colors.ENDC)
+test_algo(i_test, i_test, train_functions.no_train_monte_carlo(
+    i_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'i_test: ')
+test_algo(one_gate_test, i_test, train_functions.no_train_monte_carlo(
+    one_gate_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'one_gate_test: ')
+test_algo(five_gate_test, i_test, train_functions.no_train_monte_carlo(
     five_gate_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'five_gate_test: ')
-print("Fail Count: " + str(fail_count))
-# test_algo(i_test, i_test, train_functions.no_train_monte_carlo(
-#         i_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'i_test: ')
-# test_algo(unitary_test, i_test, train_functions.no_train_monte_carlo(
-#     unitary_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'unitary_test: ')
+test_algo(unitary_test, i_test, train_functions.no_train_monte_carlo(
+    unitary_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'unitary_test: ')
