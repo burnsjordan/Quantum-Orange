@@ -195,8 +195,7 @@ class Monte_Carlo_Tree():
             return
         if(not starting_node.check_children()):
             count = 0
-            while(count < 1000):
+            while(count < 5000):
                 self.play_round(starting_node)
                 count += 1
-        temp = starting_node.get_best_child().times_won
         return starting_node.get_best_child()

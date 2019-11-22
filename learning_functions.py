@@ -51,4 +51,4 @@ def random_algo(target_matrix, current_matrix, gates_list, trained_ai):
 def monte_carlo_algo(target_matrix, current_matrix, gates_list, trained_ai):
     temp = trained_ai.get_best_move(current_matrix)
     trained_ai.update(temp)
-    return monte_carlo.untuple_array(temp.gate)
+    return temp.matrix
