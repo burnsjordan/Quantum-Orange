@@ -6,6 +6,8 @@ import numpy as np
 def train_monte_carlo(target_matrix, current_matrix, gates_list, **kwargs):
     move_time = kwargs.get('time', 5)
     max_games = kwargs.get('games', 100)
+    monte = monte_carlo.Monte_Carlo_Tree(N=int(
+        np.log2(np.size(current_matrix, 0))), target=target_matrix, list=gates_list, time=move_time)
     circuit = monte_carlo.Circuit(N=int(
         np.log2(np.size(current_matrix, 0))), target=target_matrix, list=gates_list)
     monte = monte_carlo.MonteCarlo(circuit, time=move_time)
@@ -20,7 +22,6 @@ def train_monte_carlo(target_matrix, current_matrix, gates_list, **kwargs):
 # Create new monte carlo search tree
 def no_train_monte_carlo(target_matrix, current_matrix, gates_list, **kwargs):
     move_time = kwargs.get('time', 5)
-    circuit = monte_carlo.Circuit(N=int(
-        np.log2(np.size(current_matrix, 0))), target=target_matrix, list=gates_list)
-    monte = monte_carlo.MonteCarlo(circuit, time=move_time, verbose=False)
+    monte = monte_carlo.Monte_Carlo_Tree(N=int(
+        np.log2(np.size(current_matrix, 0))), target=target_matrix, list=gates_list, time=move_time, matrix=current_matrix)
     return monte

@@ -20,25 +20,49 @@ gates_list = gates.get_gates(int(np.log2(np.size(current_matrix, 0))), 'small')
 max_depth = 5
 error_threshold = 0.1
 # Test using one gate from the gates list
-one_gate_test = np.dot(learning_functions.random_algo(
+one_gate_test = np.matmul(learning_functions.random_algo(
     i_test, 0, gates_list, 0), i_test)
 # Test using five gates from the gates list
 five_gate_test = i_test
 for i in range(5):
-    five_gate_test = np.dot(learning_functions.random_algo(
+    five_gate_test = np.matmul(learning_functions.random_algo(
         five_gate_test, 0, gates_list, 0), five_gate_test)
 # Test using random unitary gate
 unitary_test = unitary_group.rvs(2**int(np.log2(np.size(current_matrix, 0))))
 
 
 # Attempt to approximate the given matrix
-def test_algo(target_matrix, current_matrix, trained_ai, learning_function, temp_str):
+def test_algo(target_matrix, current_matrix, trained_ai, learning_function, temp_str, verbose=False):
     high_error = True
     count = 0
+    rolling_matrix = current_matrix
     while(high_error and count < max_depth):
-        current_matrix = np.dot(learning_function(
-            target_matrix, current_matrix, gates_list, trained_ai), current_matrix)
-        if(np.linalg.norm(target_matrix-current_matrix) < error_threshold):
+        if(verbose):
+            print(count)
+        #rolling_matrix = learning_function(target_matrix, rolling_matrix, gates_list, trained_ai)
+        rolling_matrix = np.matmul(learning_function(
+            target_matrix, rolling_matrix, gates_list, trained_ai), rolling_matrix)
+        if(np.linalg.norm(target_matrix-rolling_matrix) < error_threshold):
+            high_error = False
+        count += 1
+    if(high_error):
+        print(temp_str + Colors.FAILED + 'Failed' + Colors.ENDC)
+    else:
+        print(temp_str + Colors.PASSED + 'Passed' + Colors.ENDC)
+
+
+# Attempt to approximate the given matrix
+def test_algo_monte(target_matrix, current_matrix, trained_ai, learning_function, temp_str, verbose=False):
+    high_error = True
+    count = 0
+    rolling_matrix = current_matrix
+    while(high_error and count < max_depth):
+        if(verbose):
+            print(count)
+        rolling_matrix = learning_function(target_matrix, rolling_matrix, gates_list, trained_ai)
+        #rolling_matrix = np.matmul(learning_function(
+            #target_matrix, rolling_matrix, gates_list, trained_ai), rolling_matrix)
+        if(np.linalg.norm(target_matrix-rolling_matrix) < error_threshold):
             high_error = False
         count += 1
     if(high_error):
@@ -80,17 +104,26 @@ test_algo(one_gate_test, i_test, 0,
 test_algo(five_gate_test, i_test, 0,
           learning_functions.deep_greedy_algo, 'five_gate_test: ')
 test_algo(unitary_test, i_test, 0,
-          learning_functions.deep_greedy_algo, 'unitary_test: ')
+        learning_functions.deep_greedy_algo, 'unitary_test: ')
 
 
 # Test Monte Carlo Algorithm
 print('')
 print(Colors.HEADING + 'Monte Carlo Algorithm' + Colors.ENDC)
-test_algo(i_test, i_test, train_functions.no_train_monte_carlo(
+test_algo_monte(i_test, i_test, train_functions.no_train_monte_carlo(
     i_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'i_test: ')
-test_algo(one_gate_test, i_test, train_functions.no_train_monte_carlo(
+test_algo_monte(one_gate_test, i_test, train_functions.no_train_monte_carlo(
     one_gate_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'one_gate_test: ')
-test_algo(five_gate_test, i_test, train_functions.no_train_monte_carlo(
+test_algo_monte(five_gate_test, i_test, train_functions.no_train_monte_carlo(
     five_gate_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'five_gate_test: ')
-test_algo(unitary_test, i_test, train_functions.no_train_monte_carlo(
+test_algo_monte(unitary_test, i_test, train_functions.no_train_monte_carlo(
     unitary_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'unitary_test: ')
+
+
+for i in range(100):
+    five_gate_test = i_test
+    for j in range(5):
+        five_gate_test = np.matmul(learning_functions.random_algo(
+            five_gate_test, 0, gates_list, 0), five_gate_test)
+    test_algo_monte(five_gate_test, i_test, train_functions.no_train_monte_carlo(
+        five_gate_test, i_test, gates_list), learning_functions.monte_carlo_algo, 'five_gate_test: ')
