@@ -1,4 +1,5 @@
 import monte_carlo
+import monte_carlo_nn
 import numpy as np
 
 
@@ -23,5 +24,13 @@ def train_monte_carlo(target_matrix, current_matrix, gates_list, **kwargs):
 def no_train_monte_carlo(target_matrix, current_matrix, gates_list, **kwargs):
     move_time = kwargs.get('time', 5)
     monte = monte_carlo.Monte_Carlo_Tree(N=int(
+        np.log2(np.size(current_matrix, 0))), target=target_matrix, list=gates_list, time=move_time, matrix=current_matrix)
+    return monte
+
+
+# Create new monte carlo search tree
+def no_train_monte_carlo_nn(target_matrix, current_matrix, gates_list, **kwargs):
+    move_time = kwargs.get('time', 5)
+    monte = monte_carlo_nn.Monte_Carlo_Tree(N=int(
         np.log2(np.size(current_matrix, 0))), target=target_matrix, list=gates_list, time=move_time, matrix=current_matrix)
     return monte

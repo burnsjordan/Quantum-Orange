@@ -7,8 +7,8 @@ from random import choice
 from tensorflow.keras.models import load_model
 from tensorflow.keras import backend as K 
 
-model = load_model('real_matrix1gates.h5')
-nn = False
+model = load_model('real_matrix.h5')
+nn = True
 
 inputs_real = []
 inputs_imag = []

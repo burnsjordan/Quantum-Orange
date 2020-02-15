@@ -137,7 +137,7 @@ print("monte")
 successes = 0
 for i in range(100):
     five_gate_test = i_test
-    for j in range(1):
+    for j in range(2):
         five_gate_test = np.matmul(learning_functions.random_algo(
             five_gate_test, 0, gates_list, 0), five_gate_test)
     if(test_algo_monte(five_gate_test, i_test, train_functions.no_train_monte_carlo(
@@ -150,7 +150,7 @@ print("nn")
 successes = 0
 for i in range(100):
     five_gate_test = i_test
-    for j in range(1):
+    for j in range(2):
         five_gate_test = np.matmul(learning_functions.random_algo(
             five_gate_test, 0, gates_list, 0), five_gate_test)
     if(test_algo_monte(five_gate_test, i_test, train_functions.no_train_monte_carlo_nn(
