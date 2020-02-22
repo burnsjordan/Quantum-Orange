@@ -7,7 +7,7 @@ from random import choice
 from tensorflow.keras.models import load_model
 from tensorflow.keras import backend as K 
 
-model = load_model('real_matrix1gates.h5')
+model = load_model('./Training/Trained_Networks/real_matrix1gates.h5')
 nn = False
 
 inputs_real = []
