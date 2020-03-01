@@ -24,18 +24,18 @@ sgates = gates.small_dict
 grover = np.identity(4)
 temp = np.kron(sgates['Hadamard'], sgates['Hadamard'])
 grover = np.matmul(grover, temp)
-# temp = np.kron(sgates['X'], sgates['X'])
-# grover = np.matmul(grover, temp)
-# temp = np.kron(sgates['Identity'], sgates['Hadamard'])
-# grover = np.matmul(grover, temp)
-# temp = sgates['CNOT']
-# grover = np.matmul(grover, temp)
-# temp = np.kron(sgates['Identity'], sgates['Hadamard'])
-# grover = np.matmul(grover, temp)
-# temp = np.kron(sgates['X'], sgates['X'])
-# grover = np.matmul(grover, temp)
-# temp = np.kron(sgates['Hadamard'], sgates['Hadamard'])
-# grover = np.matmul(grover, temp)
+temp = np.kron(sgates['X'], sgates['X'])
+grover = np.matmul(grover, temp)
+temp = np.kron(sgates['Identity'], sgates['Hadamard'])
+grover = np.matmul(grover, temp)
+temp = sgates['CNOT']
+grover = np.matmul(grover, temp)
+temp = np.kron(sgates['Identity'], sgates['Hadamard'])
+grover = np.matmul(grover, temp)
+temp = np.kron(sgates['X'], sgates['X'])
+grover = np.matmul(grover, temp)
+temp = np.kron(sgates['Hadamard'], sgates['Hadamard'])
+grover = np.matmul(grover, temp)
 
 # Attempt to approximate the given matrix
 def test_algo_monte(target_matrix, current_matrix, trained_ai, learning_function, temp_str, verbose=False):
@@ -73,7 +73,6 @@ while(total < 25):
 
 print("Successes: " + str(success))
 print("Total: " + str(total))
-
 
 print('nn')
 success = 0
