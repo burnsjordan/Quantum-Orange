@@ -1,3 +1,4 @@
+
 import numpy as np
 import random
 
@@ -119,5 +120,3 @@ def get_training_data(N):
     # print("inverse_hit_count: " + str(inverse_hit_count))
 
     return [inputs, outputs]
-
-get_training_data(2)

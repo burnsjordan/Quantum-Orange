@@ -1,5 +1,5 @@
 import numpy as np
-import gates
+import helpers
 import learning_functions
 import train_functions
 from scipy.stats import unitary_group
